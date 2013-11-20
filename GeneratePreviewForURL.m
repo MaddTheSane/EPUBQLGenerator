@@ -65,7 +65,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
       return noErr;
     }
 
-    NSXMLNode *fullPathNode = [nodes objectAtIndex:0];
+    NSXMLNode *fullPathNode = nodes[0];
     NSString *fullPathValue =[fullPathNode stringValue];
     NSString *opfFilePath = [fullPathValue stringByTrimmingCharactersInSet:setForTrim];
     opfFilePath = [opfFilePath stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -88,7 +88,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     xpath = @"/package/metadata/*[local-name()='title']";
     nodes = [xmlDoc nodesForXPath:xpath error:NULL];
     if([nodes count]) {
-      NSXMLNode *node = [nodes objectAtIndex:0];
+      NSXMLNode *node = nodes[0];
       epubTitle = [node stringValue];
     }
     if([epubTitle length] == 0) epubTitle = [path lastPathComponent];
@@ -107,7 +107,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
       NSString *key = [[idNode stringValue] stringByTrimmingCharactersInSet:setForTrim];
       NSString *hrefValue = [[hrefNode stringValue] stringByTrimmingCharactersInSet:setForTrim];
       hrefValue = [hrefValue stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-      [manifest setObject:hrefValue forKey:key];
+      manifest[key] = hrefValue;
     }
 
     xpath = @"/package/spine/itemref/@idref";
@@ -122,7 +122,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     NSString *opfBasePath = [opfFilePath stringByDeletingLastPathComponent];
     for(NSXMLNode *node in nodes) {
       NSString *idref = [[node stringValue] stringByTrimmingCharactersInSet:setForTrim];
-      NSString *hrefValue = [manifest objectForKey:idref];
+      NSString *hrefValue = manifest[idref];
       if(![hrefValue length]) continue;
       NSString *htmlPath = nil;
       if([hrefValue isAbsolutePath]) htmlPath = [hrefValue substringFromIndex:1];
@@ -198,9 +198,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
           [node setStringValue:[@"cid:" stringByAppendingString:attachmentPath]];
 
           NSString *key = (NSString *)kQLPreviewPropertyAttachmentDataKey;
-          NSDictionary *attachment = [NSDictionary dictionaryWithObject:attachmentData
-                                                                 forKey:key];
-          [attachments setObject:attachment forKey:attachmentPath];
+          NSDictionary *attachment = @{key: attachmentData};
+          attachments[attachmentPath] = attachment;
 
           if(maximumNumberOfLoadingImage != kLoadAllFiles &&
              ++numberOfImage >= maximumNumberOfLoadingImage) break;
@@ -210,14 +209,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
       [[htmlDocument rootElement] addChild:[[xmlDoc rootElement] copy]];
     }
 
-    NSDictionary *properties = [NSDictionary dictionaryWithObjectsAndKeys:
-                                @"text/html",
-                                (NSString *)kQLPreviewPropertyMIMETypeKey,
-                                @"UTF-8",
-                                (NSString *)kQLPreviewPropertyTextEncodingNameKey,
-                                attachments,
-                                (NSString *)kQLPreviewPropertyAttachmentsKey,
-                                nil];
+    NSDictionary *properties = @{(NSString *)kQLPreviewPropertyMIMETypeKey: @"text/html",
+                                (NSString *)kQLPreviewPropertyTextEncodingNameKey: @"UTF-8",
+                                (NSString *)kQLPreviewPropertyAttachmentsKey: attachments};
     QLPreviewRequestSetDataRepresentation(preview,
                                           (__bridge CFDataRef)[htmlDocument XMLData],
                                           kUTTypeHTML,

@@ -43,7 +43,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface,
       return noErr;
     }
 
-    NSString *fullPathValue = [[nodes objectAtIndex:0] stringValue];
+    NSString *fullPathValue = [nodes[0] stringValue];
     NSString *opfFilePath = [fullPathValue stringByTrimmingCharactersInSet:setForTrim];
     opfFilePath = [opfFilePath stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
@@ -62,17 +62,17 @@ OSStatus GenerateThumbnailForURL(void *thisInterface,
     NSString *coverImagePath = nil;
     xpath = @"/package/manifest/item[contains(concat(' ', normalize-space(@properties), ' '), ' cover-image ')]/@href";
     nodes = [xmlDoc nodesForXPath:xpath error:NULL];
-    if([nodes count]) coverImagePath = [[nodes objectAtIndex:0] stringValue];
+    if([nodes count]) coverImagePath = [nodes[0] stringValue];
     else {
       xpath = @"/package/metadata/meta[@name='cover']/@content";
       nodes = [xmlDoc nodesForXPath:xpath error:NULL];
       if([nodes count]) {
-        NSString *coverImageId = [[[nodes objectAtIndex:0] stringValue] stringByTrimmingCharactersInSet:setForTrim];
+        NSString *coverImageId = [[nodes[0] stringValue] stringByTrimmingCharactersInSet:setForTrim];
         xpath = [NSString stringWithFormat:@"/package/manifest/item[@id='%@']/@href",
                  coverImageId];
         NSArray *coverImageItemHrefs = [xmlDoc nodesForXPath:xpath error:NULL];
         if([coverImageItemHrefs count]) {
-          coverImagePath = [[coverImageItemHrefs objectAtIndex:0] stringValue];
+          coverImagePath = [coverImageItemHrefs[0] stringValue];
         }
       }
     }

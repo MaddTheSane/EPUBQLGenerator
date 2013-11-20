@@ -19,7 +19,7 @@
  *
  * @param path The absolute path of the zip file from which to opens.
  */
-- (id)initWithZipFile:(NSString *)path
+- (instancetype)initWithZipFile:(NSString *)path
 {
   if((self = [self init]) != nil) {
     unzipFile_ = unzOpen([path fileSystemRepresentation]);
@@ -67,8 +67,7 @@
     unzGetCurrentFileInfo(unzipFile_, &fileInfo,
                           rawFilename, sizeof(rawFilename),
                           NULL, 0, NULL, 0);
-    NSString *filename = [NSString stringWithCString:rawFilename
-                                            encoding:NSUTF8StringEncoding];
+    NSString *filename = @(rawFilename);
     [itemsArray addObject:filename];
   } while(unzGoToNextFile(unzipFile_) != UNZ_END_OF_LIST_OF_FILE);
 

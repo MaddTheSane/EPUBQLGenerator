@@ -15,7 +15,6 @@
 @interface GNJUnZip : NSObject
 {
   unzFile unzipFile_;
-  NSString *path_;
 }
 
 /** The path of zip file */
@@ -24,7 +23,7 @@
 /** The items contained in the zip archive. */
 @property (unsafe_unretained, nonatomic, readonly) NSArray *items;
 
-- (id)initWithZipFile:(NSString *)path;
+- (instancetype)initWithZipFile:(NSString *)path;
 - (NSData *)dataWithContentsOfFile:(NSString *)path;
 
 @end
