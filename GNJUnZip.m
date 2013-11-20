@@ -39,10 +39,8 @@
  */
 - (void)dealloc
 {
-  if(unzipFile_) unzClose(unzipFile_);
-  [path_ release];
-
-  [super dealloc];
+  if(unzipFile_)
+	  unzClose(unzipFile_);
 }
 
 /**
